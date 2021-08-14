@@ -1,6 +1,7 @@
 <updates>
     <update>
         <oldName>test</oldName>        
+        <newName>newTest</newName>
     </update>
     <update>
         <oldName>tes2</oldName>        
