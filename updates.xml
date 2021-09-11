@@ -5,16 +5,4 @@
     <roomNumber>403</roomNumber>
     <action>update</action>
   </update>
-  <update>
-    <action>insert</action>
-    <name>ניסוי</name>
-    <roomNumber>1</roomNumber>
-    <phoneNumber>1</phoneNumber>
-  </update>
-  <update>
-    <action>delete</action>
-    <name>ניסוי</name>
-    <roomNumber>1</roomNumber>
-    <phoneNumber>1</phoneNumber>
-  </update>
 </updates>
