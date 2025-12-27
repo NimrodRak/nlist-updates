@@ -292,10 +292,10 @@
       />
       <div class="contacts-header">
         <span>טלפון</span>
-        <span id="sort-by-name" class="sortable-header header-link">שם</span>
-        <span id="sort-by-room" class="sortable-header header-link active"
-          >דירה</span
+        <span id="sort-by-name" class="sortable-header header-link active"
+          >שם</span
         >
+        <span id="sort-by-room" class="sortable-header header-link">דירה</span>
       </div>
 
       <div class="contacts-list">MAGIC_PLACEHOLDER</div>
@@ -327,7 +327,7 @@
         // Listen for changes in system preference
         mediaQuery.addEventListener("change", updateTheme);
 
-        let currentSort = { column: "room", direction: "asc" };
+        let currentSort = { column: null, direction: "asc" };
 
         function sortContacts(column) {
           // If the clicked column is already the current sort column, do nothing.
@@ -389,9 +389,9 @@
         sortByNameBtn.addEventListener("click", () => sortContacts("name"));
         sortByRoomBtn.addEventListener("click", () => sortContacts("room"));
 
-        // Initial sort by room number
+        // Initial sort by name
         document.addEventListener("DOMContentLoaded", () =>
-          sortContacts(currentSort.column)
+          sortContacts("name")
         );
 
         // Re-apply search filter after sorting changes visibility rules
