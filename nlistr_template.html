@@ -346,24 +346,20 @@
             contactsList.querySelectorAll(".contact-row")
           );
 
-          // Handle filtering for empty names when sorting by name
-          if (column === "name") {
-            rows.forEach((row) => {
+          rows.forEach((row) => {
+            row.hidden = false;
+            if (column === "name") {
               const name = row
                 .querySelector(".contact-name")
                 .textContent.trim();
-              // Hide if name is empty
-              if (name === "") {
-                row.hidden = true;
-              }
-            });
-          } else {
-            // When switching to another sort, un-hide all rows so they can be re-evaluated.
-            // The search filter will correctly re-apply visibility.
-            rows.forEach((row) => {
-              row.hidden = false;
-            });
-          }
+              if (name === "") row.hidden = true;
+            } else if (column === "room") {
+              const room = row
+                .querySelector(".contact-room")
+                .textContent.trim();
+              if (room === "") row.hidden = true;
+            }
+          });
 
           const collator = new Intl.Collator("he", { numeric: true });
 
@@ -372,6 +368,10 @@
             if (column === "room") {
               valA = parseInt(a.querySelector(".contact-room").textContent, 10);
               valB = parseInt(b.querySelector(".contact-room").textContent, 10);
+
+              if (isNaN(valA)) valA = 0;
+              if (isNaN(valB)) valB = 0;
+
               return valA - valB; // Always ascending for room
             } else {
               // name
@@ -426,7 +426,10 @@
             const isHiddenByNameSort =
               currentSort.column === "name" && name.trim() === "";
 
-            if (matchesQuery && !isHiddenByNameSort) {
+            const isHiddenByRoomSort =
+              currentSort.column === "room" && room.trim() === "";
+
+            if (matchesQuery && !isHiddenByNameSort && !isHiddenByRoomSort) {
               row.hidden = false;
             } else {
               row.hidden = true;
