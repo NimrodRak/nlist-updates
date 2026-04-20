@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NListR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --search-height: 50px;
+        --search-font-size: 1.1rem;
+        --search-border-radius: 12px;
+        --page-padding: 24px;
+
+        /* Light Theme Colors */
+        --bg-color: #f8fafc;
+        --text-color: #1e293b;
+        --text-color-secondary: #475569;
+        --search-bg: #ffffff;
+        --search-border: #cbd5e1;
+        --search-focus-border: #6366f1;
+        --placeholder-color: #64748b;
+        --row-border: #e2e8f0;
+        --row-hover-bg: #f1f5f9;
+        --phone-color: #4338ca;
+        --icon-fill: #475569;
+      }
+
+      html.dark-mode {
+        color-scheme: dark;
+        --bg-color: #0f172a;
+        --text-color: #e2e8f0;
+        --text-color-secondary: #94a3b8;
+        --search-bg: #1e293b;
+        --search-border: #334155;
+        --placeholder-color: #94a3b8;
+        --row-border: #334155;
+        --row-hover-bg: #1e293b;
+        --phone-color: #a5b4fc;
+        --icon-fill: #94a3b8;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        background: var(--bg-color);
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: var(--text-color);
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .contacts-wrapper {
+        width: 100%;
+        max-width: 740px;
+        padding: var(--page-padding);
+      }
+
+      .search-bar {
+        display: block;
+        margin: var(--page-padding) 0;
+        width: 100%;
+        height: var(--search-height);
+        font-size: var(--search-font-size);
+        font-weight: 600;
+        background: var(--search-bg);
+        border: 1px solid var(--search-border);
+        border-radius: var(--search-border-radius);
+        color: var(--text-color);
+        padding: 0 16px;
+        font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s;
+        direction: rtl;
+      }
+
+      .search-bar:focus {
+        outline: none;
+        border-color: var(--search-focus-border);
+      }
+
+      .search-bar::placeholder {
+        color: var(--placeholder-color);
+        font-weight: 500;
+        text-align: right;
+      }
+
+      .contact-row[hidden] {
+        display: none;
+      }
+
+      .contacts-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 4px;
+        padding: 0 0 12px;
+        border-bottom: 1px solid var(--row-border);
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: var(--text-color-secondary);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .header-link {
+        color: var(--phone-color);
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+
+      /* Remove underline from the active/selected header */
+      .header-link.active {
+        text-decoration: none;
+      }
+
+      .sortable-header {
+        cursor: pointer;
+        user-select: none;
+        transition: color 0.2s ease-out;
+      }
+
+      .sortable-header:hover {
+        color: var(--text-color);
+      }
+      .sortable-header.active {
+        color: var(--text-color);
+        cursor: default;
+      }
+
+      .contacts-header > span:nth-child(1) {
+        text-align: left;
+      }
+      .contacts-header > span:nth-child(2) {
+        text-align: right;
+      }
+      .contacts-header > span:nth-child(3) {
+        text-align: right;
+      }
+
+      .contacts-list {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .contact-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        align-items: center;
+        gap: 4px;
+        padding: 20px 0;
+        width: auto;
+        border-bottom: 1px solid var(--row-border);
+        text-decoration: none;
+        color: inherit;
+        font-size: clamp(1.1rem, 1.4vw + 0.7rem, 1.4rem);
+        transition: background-color 0.2s ease-out;
+      }
+
+      .contact-row:hover {
+        background-color: var(--row-hover-bg);
+        border-radius: 12px;
+      }
+
+      .contact-name {
+        font-weight: 500;
+        font-size: 1.25em;
+        text-align: right;
+      }
+
+      .contact-room {
+        font-size: 1.25em;
+        color: var(--text-color);
+        text-align: right;
+        font-weight: 500;
+      }
+
+      .contact-phone {
+        font-size: 1.25em;
+        color: var(--text-color-secondary);
+        white-space: nowrap;
+        font-weight: 500;
+        text-align: left;
+      }
+
+      @media (max-width: 600px) {
+        .contact-row {
+          grid-template-columns: 1fr;
+          gap: 8px;
+          text-align: center;
+          font-size: 1.5rem; /* Enlarge font size on mobile */
+        }
+        .contact-phone,
+        .contact-name,
+        .contact-room {
+          text-align: center;
+        }
+      }
+
+      @media (orientation: portrait) {
+        /* Allow wrapper to fill the screen width */
+        .contacts-wrapper {
+          max-width: none;
+        }
+
+        /* Double the base font size for better readability in portrait mode */
+        html {
+          font-size: 200%;
+        }
+
+        /* Reduce the gap between columns to a third */
+        .contacts-header,
+        .contact-row {
+          gap: 1.33px; /* 4px / 3 */
+          grid-template-columns: 1fr 2fr 1fr;
+        }
+
+        /* Make the name font twice the size of other row fonts */
+        .contact-name {
+          font-size: 1.4em;
+        }
+
+        .search-bar {
+          height: 80px;
+          font-size: 1.5rem;
+        }
+
+        .return-to-top {
+          width: 120px;
+          height: 120px;
+          bottom: 50px;
+          right: 50px;
+        }
+      }
+
+      .return-to-top {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        width: 50px;
+        height: 50px;
+        background: var(--search-bg);
+        border: 1px solid var(--row-border);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(20px);
+        transition: opacity 0.3s, visibility 0.3s, transform 0.3s,
+          background-color 0.3s;
+      }
+
+      .return-to-top.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .return-to-top:hover {
+        background-color: var(--row-hover-bg);
+      }
+
+      .return-to-top svg {
+        width: 50%;
+        height: 50%;
+        fill: var(--icon-fill);
+        transition: fill 0.3s;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="contacts-wrapper">
+      <input
+        type="search"
+        class="search-bar"
+        placeholder="חיפוש לפי שם או דירה..."
+        oninput="filterContacts(this.value)"
+      />
+      <div class="contacts-header">
+        <span>טלפון</span>
+        <span id="sort-by-name" class="sortable-header header-link active"
+          >שם</span
+        >
+        <span id="sort-by-room" class="sortable-header header-link">דירה</span>
+      </div>
+
+      <div class="contacts-list">MAGIC_PLACEHOLDER</div>
+      <a href="#" class="return-to-top" aria-label="Return to top">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M12.707 4.293a1 1 0 00-1.414 0l-6 6a1 1 0 001.414 1.414L12 6.414l5.293 5.293a1 1 0 001.414-1.414l-6-6z"
+          ></path>
+          <path
+            d="M12.707 12.293a1 1 0 00-1.414 0l-6 6a1 1 0 001.414 1.414L12 14.414l5.293 5.293a1 1 0 001.414-1.414l-6-6z"
+          ></path>
+        </svg>
+      </a>
+      <script>
+        const docElement = document.documentElement;
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+        const contactsList = document.querySelector(".contacts-list");
+        const sortByNameBtn = document.getElementById("sort-by-name");
+        const sortByRoomBtn = document.getElementById("sort-by-room");
+        const toTopBtn = document.querySelector(".return-to-top");
+
+        function updateTheme(e) {
+          docElement.classList.toggle("dark-mode", e.matches);
+        }
+
+        // Set initial theme based on system preference
+        updateTheme(mediaQuery);
+
+        // Listen for changes in system preference
+        mediaQuery.addEventListener("change", updateTheme);
+
+        let currentSort = { column: null, direction: "asc" };
+
+        function sortContacts(column) {
+          // If the clicked column is already the current sort column, do nothing.
+          if (currentSort.column === column) {
+            return;
+          }
+
+          // Set the current sort column and always use ascending direction.
+          currentSort = { column, direction: "asc" };
+
+          // Update active state on headers
+          sortByNameBtn.classList.toggle("active", column === "name");
+          sortByRoomBtn.classList.toggle("active", column === "room");
+
+          const rows = Array.from(
+            contactsList.querySelectorAll(".contact-row")
+          );
+
+          rows.forEach((row) => {
+            row.hidden = false;
+            if (column === "name") {
+              const name = row
+                .querySelector(".contact-name")
+                .textContent.trim();
+              if (name === "") row.hidden = true;
+            } else if (column === "room") {
+              const room = row
+                .querySelector(".contact-room")
+                .textContent.trim();
+              if (room === "") row.hidden = true;
+            }
+          });
+
+          const collator = new Intl.Collator("he", { numeric: true });
+
+          rows.sort((a, b) => {
+            let valA, valB;
+            if (column === "room") {
+              valA = parseInt(a.querySelector(".contact-room").textContent, 10);
+              valB = parseInt(b.querySelector(".contact-room").textContent, 10);
+
+              if (isNaN(valA)) valA = 0;
+              if (isNaN(valB)) valB = 0;
+
+              return valA - valB; // Always ascending for room
+            } else {
+              // name
+              valA = a.querySelector(".contact-name").textContent;
+              valB = b.querySelector(".contact-name").textContent;
+              return collator.compare(valA, valB); // Always ascending for name
+            }
+          });
+
+          // Re-append rows in the new sorted order
+          rows.forEach((row) => contactsList.appendChild(row));
+        }
+
+        // Add event listeners
+        sortByNameBtn.addEventListener("click", () => sortContacts("name"));
+        sortByRoomBtn.addEventListener("click", () => sortContacts("room"));
+
+        // Initial sort by name
+        document.addEventListener("DOMContentLoaded", () =>
+          sortContacts("name")
+        );
+
+        // Re-apply search filter after sorting changes visibility rules
+        document
+          .querySelectorAll(".sortable-header")
+          .forEach((h) =>
+            h.addEventListener("click", () =>
+              filterContacts(document.querySelector(".search-bar").value)
+            )
+          );
+
+        function filterContacts(query) {
+          const normalizedQuery = query.toLowerCase().trim();
+          const contactRows = document.querySelectorAll(".contact-row");
+
+          contactRows.forEach((row) => {
+            const name = row
+              .querySelector(".contact-name")
+              .textContent.toLowerCase();
+            const room = row
+              .querySelector(".contact-room")
+              .textContent.toLowerCase();
+            const phone = row
+              .querySelector(".contact-phone")
+              .textContent.toLowerCase();
+
+            // The room number is part of the name/room block, so we can search it too.
+            const searchableText = `${name} ${room} ${phone}`;
+            const matchesQuery = searchableText.includes(normalizedQuery);
+
+            // When sorting by name, rows with empty names should remain hidden.
+            const isHiddenByNameSort =
+              currentSort.column === "name" && name.trim() === "";
+
+            const isHiddenByRoomSort =
+              currentSort.column === "room" && room.trim() === "";
+
+            if (matchesQuery && !isHiddenByNameSort && !isHiddenByRoomSort) {
+              row.hidden = false;
+            } else {
+              row.hidden = true;
+            }
+          });
+        }
+
+        // Scroll to top logic
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 200) {
+            toTopBtn.classList.add("show");
+          } else {
+            toTopBtn.classList.remove("show");
+          }
+        });
+
+        toTopBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      </script>
+    </div>
+  </body>
+</html>
